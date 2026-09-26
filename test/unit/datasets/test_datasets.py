@@ -370,7 +370,33 @@ class TestFairlearnDataset:
             "RAC1P",
         ]
         assert dataset["data"].columns.to_list() == expected_columns
+        assert dataset["feature_names"] == expected_columns
         assert dataset["data"].shape == (1664500, 10)
+
+    @pytest.mark.parametrize("as_frame", [True, False])
+    def test_fetch_acs_income_feature_names_match_returned_columns(self, as_frame):
+        # The OpenML record (data_id=43141) carries the state column "ST" as an
+        # 11th feature; the loader filters on it and drops it from the data.
+        features = ["AGEP", "COW", "SCHL", "MAR", "OCCP", "POBP", "RELP", "WKHP", "SEX", "RAC1P"]
+        data = pd.DataFrame(np.ones((3, 11)), columns=features + ["ST"])
+        data["ST"] = [6, 6, 36]
+        target = pd.Series([1.0, 2.0, 3.0], name="PINCP")
+        bunch = Bunch(
+            data=data,
+            target=target,
+            frame=pd.concat([data, target], axis=1),
+            feature_names=features + ["ST"],
+        )
+        with patch("fairlearn.datasets._fetch_acs_income.fetch_openml", return_value=bunch):
+            result = fetch_acs_income(states=["CA"], as_frame=as_frame)
+
+        assert result.feature_names == features
+        assert result.data.shape == (2, len(result.feature_names))
+        if as_frame:
+            assert result.data.columns.tolist() == result.feature_names
+        else:
+            # rebuilding a frame from the documented names must work
+            assert pd.DataFrame(result.data, columns=result.feature_names).shape == (2, 10)
 
     def test_fetch_acs_income_value_error(self):
         with pytest.raises(ValueError):

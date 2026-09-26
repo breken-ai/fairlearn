@@ -50,6 +50,12 @@ Bug fixes
   :pr:`1713` by :user:`SpiliosDimakopoulos`.
 * Already-fitted adversarial estimators now enforce the same two-dimensional input requirement in :code:`predict` and :code:`partial_fit`, including when input validation is skipped: :pr:`1711` by :user:`Roman Lutz <romanlutz>`.
 
+* Fixed :func:`~fairlearn.datasets.fetch_acs_income` reporting 11
+  :code:`feature_names`, including the state column :code:`ST`, although the returned
+  :code:`data` has the 10 documented features. Rebuilding a DataFrame from
+  :code:`data` and :code:`feature_names` with :code:`as_frame=False` raised a
+  :code:`ValueError`: :pr:`TBD` by :user:`breken-ai`.
+
 Documentation
 -------------
 

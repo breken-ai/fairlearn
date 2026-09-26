@@ -190,6 +190,8 @@ def fetch_acs_income(
 
     # drop the state column since it is not a feature in the published ACSIncome dataset
     df = df_all[df_all["ST"].isin(state_codes_list)].drop("ST", axis=1)
+    # the OpenML record lists "ST" as a feature; report only the features returned
+    data_dict["feature_names"] = df.columns[:_NUM_FEATS].tolist()
 
     if as_frame:
         data_dict["data"] = df.iloc[:, :_NUM_FEATS]
